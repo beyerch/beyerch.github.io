@@ -1,0 +1,1095 @@
+<HTML>
+   <HEAD>
+       <TITLE>Yet Another Covid Analysis - COVID Timeline - UIUC CS-498-DV - ccbeyer2 - Summer 2020</TITLE>
+       
+       <!--// Create Style Sheet for Narrative Visualization Consistency //--> 
+       <style>
+            /* Set Styles for the Introduction / Model Window  */              
+            .modal {
+              display: none;                    /* Hidden by default */
+              position: fixed;                  /* Stay in place */
+              z-index: 1;                       /* Sit on top */
+              //padding-top: 100px;               /* Location of the box */
+              padding-top: 20%;               /* Location of the box */
+              left: 0;
+              top: 0;
+              width: 100%;                              /* Full width */
+              height: 100%;                             /* Full height */
+              overflow: auto;                           /* Enable scroll if needed */
+              background-color: rgb(0,0,0);             /* Fallback color */
+              background-color: rgba(0,0,0,0.4);        /* Black w/ opacity */
+            }
+
+            /* Modal Content */
+            .modal-content {
+              background-color: #E9E9E8;
+              margin: auto;
+              padding: 20px;
+              border: 3px solid #E84A27;
+              width: 80%;
+            }
+
+            /* The Close Button */
+            .close {
+              color: #aaaaaa;
+              float: right;
+              font-size: 28px;
+              font-weight: bold;
+            }
+
+            .close:hover,
+            .close:focus {
+              color: #000;
+              text-decoration: none;
+              cursor: pointer;
+            }             
+
+       </style>
+
+       <style>
+           /* Style Sheet settings for the navigation buttons */ 
+
+             a.disabled_navigation_button{
+                display:inline-block;
+                padding:0.35em 1.2em;
+                border:0.1em solid #6e7887;
+                margin:0 0.3em 0.3em 0;
+                border-radius:0.12em;
+                box-sizing: border-box;
+                text-decoration:none;
+                font-family: "proxima-nova-alt", sans-serif;
+                font-weight:900;
+                color:#E9E9E8;
+                text-align:center;
+                transition: all 0.2s;
+                background-color: #E9E9E8;
+                width: 100%;
+            }
+
+
+
+           a.navigation_button{
+                display:inline-block;
+                padding:0.35em 1.2em;
+                border:0.1em solid #6e7887;
+                margin:0 0.3em 0.3em 0;
+                border-radius:0.12em;
+                box-sizing: border-box;
+                text-decoration:none;
+                font-family: "proxima-nova-alt", sans-serif;
+                font-weight:900;
+                color:#FFFFFF;
+                text-align:center;
+                transition: all 0.2s;
+                background-color: #E84A27;
+                width: 100%;
+            }
+
+            a.navigation_button:hover{
+                color:#E84A27;
+                background-color:#E9E9E8;
+            }
+            @media all and (max-width:30em){
+                a.navigation_button{
+                    display:block;
+                    margin:0.4em auto;
+                }
+            }           
+
+            a.page_title_button{
+                display:inline-block;
+                padding:0.35em 1.2em;
+                border:0.1em solid #6e7887;
+                margin:0 0.3em 0.3em 0;
+                border-radius:0.12em;
+                box-sizing: border-box;
+                text-decoration:none;
+                font-family: "proxima-nova-alt", sans-serif;
+                font-weight:900;
+                color:#E84A27;
+                text-align:center;
+                transition: all 0.2s;
+                background-color: #E9E9E8;
+                width: 100%;
+            }
+
+
+            
+       </style>
+       
+       <style>
+            /* Set Style sheet options for the document body */ 
+            body {
+                font-family: "proxima-nova-alt", sans-serif;
+                font-size: 1.15em;
+                font-weight: 400;
+                line-height: 1.6;
+                color: #E9E9E8;
+            }
+            
+            p.page_summary{
+                font-family: "proxima-nova-alt", sans-serif;
+                font-size: 1.1em;
+                font-weight: 1200;
+                line-height: 1.1;
+                color: #E9E9E8;
+            }
+            
+            /* Set Styles for the Header that override body settings */ 
+            td.header{
+               background-color: #34466B;
+            }
+
+            div.header{
+               color: white;
+               background-color: #34466b;
+            }
+
+            td.sides{
+               color: white; 
+            }
+
+            p.illini_orange{
+               color: #E84A27;
+            }
+
+            bg-white {
+              background: white; }
+
+            .bg-gray-lightest {
+              background: #F4F4F2; }
+
+            .bg-gray-light {
+              background: #E9E9E8; }
+
+            .bg-gray-medium {
+              background: white; }
+
+            .bg-gray-dark {
+              background: #363d44; }
+
+            .bg-orange {
+              background: #E84A27; }
+
+            .bg-blue-dark {
+              background: #6e7887; }       
+       
+            header { 
+               bgcolor: #002855;
+            
+             }
+
+             
+            /* Set Graph Items  */              
+            .line {
+              fill: none;
+              stroke: #E84A27;
+              stroke-width: 5px;
+            }
+
+            .axis path,
+            .axis line {
+                fill: none;
+                stroke: #E9E9E8;
+                stroke-width: 5px;
+                shape-rendering: crispEdges;
+                font-size: 14px;
+                
+            }
+
+            .axis .tick > text {
+                font-size: 1.1em;
+                font-weight: 1200;
+              fill: #E9E9E8;
+            }
+
+            chart_title {
+                font-family: "proxima-nova-alt", sans-serif;
+                font-size: 1.25em;
+                font-weight: 800;
+                line-height: 1.6;
+                color: #E84A27;            
+            }
+
+            .guideline {
+              margin-right: 100px;
+              float: right;
+            }
+            
+            div.tooltip {
+                opacity: 0;
+                position: absolute;
+                text-align: left;
+                width: 250px;
+                height: 100px;
+                padding: 2px;
+                font-family: "proxima-nova-alt", sans-serif;
+                font-size: .75em;
+                font-weight: 600;
+                background: #E9E9E8;
+                color: #E84A27;                
+                border: 0px;
+                border-radius: 8px;
+                pointer-events: none;
+}
+            
+       </style>
+
+       
+       
+       <!-- // Load the D3 Library // -->
+       <script src='https://d3js.org/d3.v5.min.js'></script> 
+       <script src="http://d3js.org/topojson.v1.min.js"></script>                  <!-- This is D3 support for JSON formatted geographic data files such as found at NASA, etc. -->
+
+       <!-- // NOTE:  The Javascript sections below would typically be placed in a standalone .js file(s); however, I left them here for easier visibility for the grader // -->       
+       <!-- // Create Global Variables // --> 
+       <script>
+           //---------------------------------------------------------------
+           //Code Block :    GLOBAL VARS
+           //Author     :    Charles Beyer (ccbeyer2)
+           //Date       :    07/29/2020
+           //Notes      :    The purpose of this block is to define/store all global variables 
+           //                that will be needed across "pages" for narrative visualization
+           //                "Real World" would probably use namespaces and load from files,
+           //                but this is 
+           //                not needed for this project and just keeping it basic 
+           //---------------------------------------------------------------
+
+           //Development Flags
+           boolDebug = true;                       // Set to true while developing / debugging for additional output 
+           
+           //Narrative Visualation Control Flags 
+           var nv_intro_played = false;           // As we only want to show the intro once, set boolean to track this 
+           
+           //Define Initial Page Values
+           var  scene_total = 3;                   // Total Number of "Slides" in Narrative 
+           var  start_date = '12/31/2019';         // First date where data is available
+           var  current_country = 'World'          // Create the default country for initial plots 
+           
+           
+           
+           //Define State Values 
+           var  scene_current = 0;                 // Keep track of the current page 
+           var  current_date = start_date;         // This variable will increment through playback 
+           
+           //Define Transition / Animation values 
+           var  ani_playback_speed = 1000;          // For animations controls the playback speed.  (higher = slower playback)
+           var  ani_scene_speed = 2000;             // For animations between scenes 
+           var  ani_enabled = true;                 // Controls whether is is playback animation or show all data at once 
+           var  ani_direction = 1;                  // 1 forward / -1 reversed
+           var  ani_skywalker = 'he was supposed to be the chosen one!';
+
+           //Declare world map variables 
+           var wm_rotation_speed = 5000            // Transition delay when "spinning" the globe to zoom to the selected country 
+           var wm_selected_zoom  = 200             // For selected country, set a zoom factor 
+
+           
+           //Define Files Required 
+           var  file_covid_data = "https://raw.githubusercontent.com/owid/covid-19-data/master/public/data/owid-covid-data.csv?raw=true";            //This file contains the COVID raw data 
+           var  file_page_intro =  "https://raw.githubusercontent.com/beyerch/CS498DV_Narrative/master/data/nv_page_headers.csv";                    //This file contains metadata for each slide/page
+           var  file_annotations = "https://raw.githubusercontent.com/beyerch/CS498DV_Narrative/master/data/nv_page_annotations.csv";                //This file contains annotations by page & date 
+           var  file_world_map =  "https://raw.githubusercontent.com/beyerch/CS498DV_Narrative/master/data/WorldMap.json";                           //World Map Raw Data 
+           var  file_country_list = "https://raw.githubusercontent.com/beyerch/CS498DV_Narrative/master/data/CountryList.tsv";                       //Country List for Map / COVID Data Lookup 
+           
+           // Load Data Sources 
+           var data_covid;                          // Data storage area for COVID main data table
+           var graph_data_covid;                     // For line chart 
+           var data_page_intro;                     // Data storage area for Page Header/Introductions
+           var data_annotations;                    // Data Annotations 
+           var data_world_map;                      // World Map 
+           var data_country_list;                   // Country List 
+           
+           // Declare objects to hold sub-sets from Data Sources 
+           var data_countries;                      // Create a list of distinct countries  (used for selection bar) 
+           var data_continents;                     // Create a list of continents (used for selection bar) 
+           
+           // Declare svg object 
+            // Create variables for margins, height, and width 
+            var margin = {top: 75, right: 20, bottom: 50, left: 70},
+                width = 760 - margin.left - margin.right,
+                height = 550 - margin.top - margin.bottom;
+
+            // Add X axis --> it is a date format
+            var x = d3.scaleTime().range([0, width]);
+            var y = d3.scaleLinear().range([height, 0]);
+
+            // Create a function to draw the line 
+            var deathline = d3.line()
+                .x(function(d) { return x(d.date); })
+                .y(function(d) { return y(d.total_deaths); });                
+                
+            // Create a function to draw the line 
+            var infectionline = d3.line()
+                .x(function(d) { return x(d.date); })
+                .y(function(d) { return y(d.total_cases); });                
+
+            // Create a function to draw the line 
+            var stringencyline = d3.line()
+                .x(function(d) { return x(d.date); })
+                .y(function(d) { return y(d.stringency_index); });                
+
+            var formatComma = d3.format(",");
+            
+
+
+       </script> 
+
+       <!-- //  Page / Scene Scripts  // --> 
+       <script>
+           //---------------------------------------------------------------
+           //Code Block :    init_display()
+           //Author     :    Charles Beyer (ccbeyer2)
+           //Date       :    07/29/2020
+           //Notes      :    The purpose of this block is remove any SVG tags and reset 
+           //                visualization to the initial state 
+
+           function init_display()
+            {
+               //Drop any existing SVG elements 
+               //d3.selectAll("svg").remove();
+            }
+
+           //---------------------------------------------------------------
+           //Code Block :    start_scene
+           //Author     :    Charles Beyer (ccbeyer2)
+           //Date       :    08/01/2020
+           //Notes      :    The purpose of this block is render the appropriate scene
+
+           function start_scene(direction=0)
+            {
+                //Deubg output as needed
+                if (boolDebug)
+                {
+                    console.log(' In start_scene()');                
+                    console.log('     Scene Number is           : ' +  scene_current);                                    
+                    console.log('     Scene Direction  is       : ' +  direction);                                                        
+                    console.log('     Introduction Bypass is    : ' +  nv_intro_played);                                                        
+                }
+
+                //Check to see current scene is either first or last and the requested direction would go out of bound, if so, exit 
+                if ( (scene_current  ==1 && direction < 0)  || (scene_current == scene_total && direction > 0) ) { return; } 
+
+                //Adjust current scene accordingly 
+                scene_current += direction;
+
+                //Since the introduction has been played, disable 
+                if (scene_current != 0) { nv_intro_played = true; }
+
+                //Update the Title Appropriately 
+                document.getElementById("btn_page_header").innerHTML = data_page_intro[scene_current].PageName;
+                
+                //Update the left side summary data 
+                if (scene_current > 0) { document.getElementById("page_overview_text").innerHTML = data_page_intro[scene_current].PageText; }
+                
+                //Update the "Previous" Navigation Menus 
+                nav_button = document.getElementById("btn_nav_previous")
+                if (scene_current > 1)
+                {
+                    //Update Button based on current scene value
+                    nav_button.className = "navigation_button";                    
+                    nav_button.innerHTML =  "Previous: " + data_page_intro[scene_current-1].PageName;
+                }
+                else
+                {
+                    //We are already at the lowest page so disable Previous
+                    nav_button.className = "disabled_navigation_button";                                       
+                }
+
+                //Update the "Next" Navigation Menus 
+                nav_button = document.getElementById("btn_nav_next")
+                if (scene_current < scene_total)
+                {
+                    //Update Button based on current scene value
+                    nav_button.className = "navigation_button";
+                    nav_button.innerHTML =  "Next: " + data_page_intro[scene_current+1].PageName;                    
+                }
+                else
+                {
+                    //Remove Text and change color 
+                    nav_button.className = "disabled_navigation_button";                   
+                }
+                
+
+                console.log('     Scene Number is           : ' +  scene_current);                                                    
+                
+                //If we are on the introduction scene, but the flag is set, move to scene 1 
+                if (scene_current == 0 && nv_intro_played == true) { scene_current = 1 }
+
+                    console.log('     Scene Number is           : ' +  scene_current);                                    
+                
+                //Perform switch based on page number 
+                switch (scene_current) 
+                {
+                  case 0:
+                    show_intro();
+                    break;
+                  case 1:
+                    create_line_graph();
+                    break;
+                  case 2:
+                    create_line_graph();                  
+                    break;
+                  case 3:
+                    create_line_graph();                  
+                    break;
+                  default:
+                    console.log('Something went wrong as an unexpected scene number was encountered!');
+                 }
+             }
+
+
+
+           //---------------------------------------------------------------
+           //Code Block :    update_chart_data
+           //Author     :    Charles Beyer (ccbeyer2)
+           //Date       :    08/02/2020
+           //Notes      :    The purpose of this block is update line chart data w/ filter 
+           //                for the currently selected Country/Location 
+
+           function create_line_graph()
+           {
+
+                if (boolDebug) {  console.log('In create_line_graph');  }
+
+                //Circle cleanup
+                Array.prototype.slice.call(document.getElementsByTagName('circle')).forEach(
+                  function(item) {
+                    item.remove();
+                    // or item.parentNode.removeChild(item); for older browsers (Edge-)
+                });        
+                
+                // Create the Sorted Country List 
+                data_countries = d3.map(data_covid, function(d){return d.location;}).keys().sort(function(a, b) {return d3.ascending(a, b);});
+                if (boolDebug) {  console.log('     data_countries dataset  has : ' + data_countries.length + ' entries');  }
+
+               // add the options to the button
+                d3.select("#sel_country")
+                  .selectAll('myOptions')
+                    .data(data_countries)
+                    .enter()
+                    .append('option')
+                    .text(function (d) { return d; }) // text showed in the menu
+                    .attr("value", function (d) { return d; }) // corresponding value returned by the button
+                    
+               // Set the currently select option to match the default country 
+               document.getElementById('sel_country').value=current_country;
+               
+               // Add event listener to allow change to Selected Country 
+                d3.select("#sel_country").on("change", function(d) {
+                    if (boolDebug) { console.log("In sel_country onChange") }
+                    // recover the option that has been chosen
+                    var selectedOption = d3.select(this).property("value")
+                    // run the updateChart function with this selected option
+                    update(selectedOption)
+                })               
+               
+
+                if (boolDebug) {  console.log('     Country Select List has : ' + document.getElementById("sel_country").options.length + ' entries');  }                    
+
+                //Get a reference to the SVG tag 
+                var svg = d3.select("svg")
+                    .attr("width", width + margin.left + margin.right)
+                    .attr("height", height + margin.top + margin.bottom)
+                  .append("g")
+                    .attr("id","g_graph")
+                    .attr("transform",
+                          "translate(" + margin.left + "," + margin.top + ")");                    
+                 
+                 // filter data to the current country 
+                 graph_data_covid = data_covid.filter(function(record) { return record.location == current_country; });
+                 
+                 graph_data_covid.forEach(function(d) {
+                           d.date = new Date(d.date); // d3.timeParse("%Y/%m/%d")(d.date);
+                           d.total_deaths = +d.total_deaths;
+                           d.total_cases = +d.total_cases;
+                           d.stringency_index = +d.stringency_index
+                          
+                           //console.log('Date is ' + d.date + ', Total Deaths are : ' + d.total_deaths);
+                        });
+
+                  // Scale the range of the data
+                  x.domain(d3.extent(graph_data_covid, function(d) { return d.date; }));
+
+                  // Determine if the path already exists, if not create 
+                  if (document.getElementById('chart_line') == null) 
+                  { 
+                        if (boolDebug) { console.log ('     Object chart_line not found, creating') }
+                        
+                        svg.append("path")
+                          .data([graph_data_covid])
+                          .attr("class", "line")
+                          .attr("id","chart_line")
+
+                       
+                  } 
+
+
+              // Three function that change the tooltip when user hover / move / leave a cell
+              var mouseover = function(d) {
+              
+                console.log ('In Tooltip Mouseover');
+                d3.select(this).transition()
+                    .duration('50')
+                    .attr('opacity', '.85');
+                    
+                Tooltip.transition()
+                     .duration(50)
+                     .style("opacity", 1);
+              }
+               
+                  // Create the appropriate line 
+                switch (scene_current) 
+                {
+                  case 1:
+                      // Set the appropriate Scaling 
+                      y.domain([0, d3.max(graph_data_covid, function(d) { return d.total_cases; })]);                  
+
+                    // Add the line for infections 
+                      d3.select("#chart_line")
+                          .data([graph_data_covid])
+                          .attr("class", "line")
+                          .attr("id","chart_line")
+                          .transition()
+                          .duration(ani_scene_speed)
+                          .attr("d", infectionline);
+
+                      break;
+                  case 2:
+                      // Set the appropriate Scaling 
+                      y.domain([0, d3.max(graph_data_covid, function(d) { return d.total_deaths; })]);                  
+                      
+                      // Add the line path for Deaths 
+                      d3.select("#chart_line")
+                          .data([graph_data_covid])
+                          .attr("class", "line")
+                          .attr("id","chart_line")
+                          .transition()
+                          .duration(ani_scene_speed)
+                          .attr("d", deathline);
+                      break;
+                  case 3:
+
+                     // Set the appropriate Scaling 
+                      y.domain([0, d3.max(graph_data_covid, function(d) { return d.stringency_index; })]);                  
+                                    
+                      // Add the line path for Deaths 
+                      d3.select("#chart_line")
+                          .data([graph_data_covid])
+                          .attr("class", "line")
+                          .attr("id","chart_line")
+                          .transition()
+                          .duration(ani_scene_speed)
+                          .attr("d", stringencyline);
+                      break;
+                  default:
+                    console.log('     Unexpected Scene value in D3 Line Chart Creation.  Scene Value was ' + scene_current);
+                      
+                }
+
+                  // Determine if the path already exists, if not create 
+                  if (document.getElementById('chart_title') == null) 
+                  { 
+                        if (boolDebug) { console.log ('     Object chart_title not found, creating') }
+                        
+                        svg.append("text")
+                        .attr("id", "chart_title");
+                  } 
+                
+                  // Add Title
+                 d3.select("#chart_title")
+                        .attr("id", "chart_title")
+                        .attr("x", (width / 2))             
+                        .attr("y", 0 - (margin.top / 2))
+                        .attr("font-family", "proxima-nova-alt, sans-serif")  
+                        .attr("fill", "#E84A27")
+                        .attr("font-weight","800")
+                        .style("text-decoration", "underline")                          
+                        .style("text-anchor","middle")
+                        .text(data_page_intro[scene_current].PageTitle + " vs Date Graph");                  
+
+                  // Determine if the path already exists, if not create 
+                  if (document.getElementById('axis_x') == null) 
+                  { 
+                        if (boolDebug) { console.log ('     Object chart x axis not found, creating') }
+                        
+                          svg.append("g")
+                          .attr("class", "axis")                  
+                          .attr("id", "axis_x");                      
+                  } 
+                        
+                        
+                  // Add the x Axis
+                 d3.select("#axis_x")
+                      .attr("class", "axis")                  
+                      .attr("id", "axis_x")                      
+                      .attr("transform", "translate(0," + height + ")")
+                      .transition()
+                      .duration(ani_scene_speed)
+                      .call(d3.axisBottom(x));
+
+                  // Determine if the path already exists, if not create 
+                  if (document.getElementById('axis_y') == null) 
+                  { 
+                        if (boolDebug) { console.log ('     Object chart y axis not found, creating') }
+                        
+                          svg.append("g")
+                              .attr("class", "axis")                  
+                              .attr("id", "axis_y");
+                  } 
+                       
+                  // Add the y Axis
+                 d3.select("#axis_y")
+                      .attr("class", "axis")                  
+                      .attr("id", "axis_y")
+                      .transition()
+                      .duration(ani_scene_speed)
+                      .call(d3.axisLeft(y));
+                      
+                 //console.log(graph_data_covid.length);
+
+
+                //Get Tooltip DIV 
+                var div = d3.select("#div_tooltip");
+                
+                //Insert Circles
+                  svg.selectAll("circle")
+                    .data(graph_data_covid)
+                    .enter()
+                    .append("circle")
+                    .style("fill", "#E84A27")
+                    .style("fill-opacity","0%")
+                    .attr("r", 3)
+                    .attr("cx", function(d){return x(d.date);})
+                    .attr("cy", function(d)
+                       {
+                          switch (scene_current)
+                             {
+                              case 1:
+                                  return y(d.total_cases);
+                              case 2: 
+                                  return y(d.total_deaths);
+                              case 3:
+                                  return y(d.stringency_index);
+                             }     
+                       }
+                     )
+                   .on("mouseover", function(d) 
+                         {
+                             div.style("opacity", .9);
+                             div.html(d.location + "<HR>" + "Total Cases : " + formatComma(d.total_cases) + "<BR>" + "Total Deaths: " + formatComma(d.total_deaths) + "<BR>" + "Government Response Level: " + d.stringency_index)
+                              .style("left", (d3.event.pageX) + "px")		
+                              .style("top", (d3.event.pageY - 28) + "px");	
+                         }
+                       )
+                    .on("mouseout", function(d)
+                         {
+                           div.style("opacity", 0);
+                         }
+                       );                
+
+
+                 
+            } 
+            
+            // A function that update the chart
+            function update(selectedGroup) {
+
+                Array.prototype.slice.call(document.getElementsByTagName('circle')).forEach(
+                  function(item) {
+                    item.remove();
+                    // or item.parentNode.removeChild(item); for older browsers (Edge-)
+                });        
+            
+            
+            
+              // Log that we are in the graph update function 
+              if (boolDebug) { console.log("In the sel_country onChange update function, value is : [" + selectedGroup + "]") }
+
+              // Update the current country 
+              current_country = selectedGroup;
+
+              // Create new data with the selection?
+              var dataFilter = data_covid.filter(function(record) { return record.location == current_country; });
+                 
+             dataFilter.forEach(function(d) {
+                       d.date = new Date(d.date); // d3.timeParse("%Y/%m/%d")(d.date);
+                       d.total_deaths = +d.total_deaths;
+                       d.total_cases = +d.total_cases;
+                       d.stringency_index = +d.stringency_index;
+                       console.log('Name is : ' + d.location + ', Date is ' + d.date + ', Total Deaths are : ' + d.total_deaths);
+                    });
+
+              //Re-Scale the range of the x axis 
+              x.domain(d3.extent(dataFilter, function(d) { return d.date; }));
+                    
+              // Create the appropriate line 
+            switch (scene_current) 
+            {
+              case 1:
+                  // Set the appropriate Scaling 
+                  y.domain([0, d3.max(dataFilter, function(d) { return d.total_cases; })]);                  
+
+                  var line = d3.select(".line")
+                      .data([dataFilter])
+                      .transition()
+                      .duration(ani_playback_speed)
+                      .attr("d", infectionline);
+                  break;
+              case 2:
+                  // Set the appropriate Scaling 
+                  y.domain([0, d3.max(dataFilter, function(d) { return d.total_deaths; })]);                  
+                  
+                  // Add the line path for Deaths 
+                  var line = d3.select(".line")
+                      .data([dataFilter])
+                      .transition()
+                      .duration(ani_playback_speed)
+                      .attr("d", deathline);
+                  break;
+              case 3:
+
+                 // Set the appropriate Scaling 
+                  y.domain([0, d3.max(dataFilter, function(d) { return d.stringency_index; })]);                  
+                                
+                  // Add the line path for Deaths 
+                  var line = d3.select(".line")
+                      .data([dataFilter])
+                      .transition()
+                      .duration(ani_playback_speed)
+                      .attr("d", stringencyline);
+                  break;
+              default:
+                console.log('     Unexpected Scene value in D3 Line Chart Creation.  Scene Value was ' + scene_current);
+                  
+            }
+
+              // Add the y Axis
+              var axis_y =     
+                  d3.select("#axis_y")          //svg.append("g")
+                      .attr("class", "axis")                  
+                      .attr("id", "axis_y")
+                      .transition()
+                      .duration(ani_playback_speed)
+                      .call(d3.axisLeft(y));
+
+                  // Add the x Axis
+               var axis_x = 
+                    d3.select("#axis_x")
+                      .attr("class", "axis")                  
+                      .attr("id", "axis_x")                      
+                      .attr("transform", "translate(0," + height + ")")
+                      .transition()
+                      .duration(ani_playback_speed)
+                      .call(d3.axisBottom(x));
+
+ 
+        //Get Tooltip DIV 
+        var div = d3.select("#div_tooltip");
+
+
+        //Insert Circles
+         var svg = d3.select("#g_graph")
+            .selectAll("circle")
+            .data(dataFilter)
+            .enter()
+            .append("circle")
+            .style("fill","#E84A27")
+            .style("fill-opacity","0%")
+            .attr("r", 3)
+            .attr("cx", function(d){return x(d.date);})
+            .attr("cy", function(d)
+               {
+                  switch (scene_current)
+                     {
+                      case 1:
+                          return y(d.total_cases);
+                      case 2: 
+                          return y(d.total_deaths);
+                      case 3:
+                          return y(d.stringency_index);
+                     }     
+               }
+             )
+           .on("mouseover", function(d) 
+                 {
+                     div.style("opacity", .9);
+                     div.html(d.location + "<HR>" + "Total Cases : " + formatComma(d.total_cases) + "<BR>" + "Total Deaths: " + formatComma(d.total_deaths) + "<BR>" + "Government Response Level: " + d.stringency_index)
+                      .style("left", (d3.event.pageX) + "px")		
+                      .style("top", (d3.event.pageY - 28) + "px");	
+                 }
+               )
+            .on("mouseout", function(d)
+                 {
+                   div.style("opacity", 0);
+                 }
+               );                
+
+                 
+            }            
+            
+            
+            
+             
+           //---------------------------------------------------------------
+           //Code Block :    show_world_map
+           //Author     :    Charles Beyer (ccbeyer2)
+           //Date       :    08/02/2020
+           //Notes      :    The purpose of this block is render the world map via D3
+
+           function show_world_map()
+           {
+              // TO DO - Implement this if I can get to it.   Day Job Work sucks and no time right now 
+             
+           }
+             
+           //---------------------------------------------------------------
+           //Code Block :    show_intro
+           //Author     :    Charles Beyer (ccbeyer2)
+           //Date       :    08/01/2020
+           //Notes      :    The purpose of this block is render the appropriate scene
+
+           function show_intro()
+           {
+                //Deubg output as needed
+                if (boolDebug)
+                {
+                    console.log(' In show_intro()');                
+                    console.log('      Page Name is : ' + data_page_intro[scene_current].PageName);
+                    console.log('      Page Title is : ' + data_page_intro[scene_current].PageTitle);                    
+                    console.log('      Page Text is : ' + data_page_intro[scene_current].PageText);                                        
+                }
+           
+               //Create SVG object in the main body 
+               var modal = document.getElementById("div_introduction")
+               var span = document.getElementById("modal-span")
+
+               //Add the data read from D3 to the paragraph 
+               document.getElementById("modal-p").innerHTML = data_page_intro[scene_current].PageText;
+               
+               //Make the dialog visible 
+               modal.style.display = "block";
+
+               //Create event handler to hide dialog 
+                span.onclick = function() {  modal.style.display = "none"; start_scene(1); window.onclick = null;  }
+               
+               //Create event handler to hide dialog outside of modal 
+               window.onclick = function(event) { if (event.target == modal) { modal.style.display = "none"; }; start_scene(1); window.onclick = null;}
+            }
+
+             
+      </script>
+      
+       <!-- //  Data Processing Scripts   // -->       
+      <script>
+            // Load the data files
+            async function data_load()
+            {
+                data_covid = await d3.csv(file_covid_data);
+                data_page_intro = await d3.csv(file_page_intro);
+                data_annotations = await d3.csv(file_annotations);
+                data_world_map = await d3.json(file_world_map);
+                data_country_list = await d3.tsv(file_country_list);
+                
+                if (boolDebug)
+                {
+                    //Debug mode, write out row counts to confirm data is loaded 
+                    console.log('data_covid dataset contains       [' + data_covid.length + '] rows of data');
+                    console.log('data_page_intro dataset contains  [' + data_page_intro.length + '] rows of data');
+                    console.log('data_annotations dataset contains [' + data_annotations.length + '] rows of data');
+                    console.log('data_world_map dataset contains  [' + Object.keys(data_world_map).length + '] data keys');
+                    console.log('data_country_list dataset contains [' + data_country_list.length + '] rows of data');
+                   
+                }
+                
+               //Validate that the data loaded 
+               if (data_covid.length < 1 || data_page_intro.length < 1 || data_annotations.length < 1 || Object.keys(data_world_map).length < 1 || data_country_list.length < 1 ) 
+               {
+                    //Something went wrong loading data, so display a warning
+                    window.alert('There was a data loading failure, please try refreshing the page.  If this issue persists, please contact the administrator or try again later');
+                    return;
+               }
+
+               //Trigger Data Post Processing 
+               data_post_processing();
+               
+               //Initialize the presentation page 
+               init_display();
+               
+               //Prep / Start scene 
+               start_scene();
+          }
+
+        </script>
+
+       <!-- // Data Load Prep Operations // --> 
+       <script>
+              function data_post_processing()
+              {
+                    // Prep the lists
+                    if (boolDebug)
+                    {
+                        console.log(' In data_post_processing ');
+                        console.log('     data_covid dataset contains        [' + data_covid.length + '] rows of data');
+                        console.log('     data_page_intro dataset contains   [' + data_page_intro.length + '] rows of data');
+                        console.log('     data_annotations dataset contains  [' + data_annotations.length + '] rows of data');
+                        console.log('     data_world_map dataset contains    [' + Object.keys(data_world_map).length + '] data keys');
+                        console.log('     data_country_list dataset contains [' + data_country_list.length + '] rows of data');
+                        
+                    }
+
+                    // Create the Sorted Country List 
+                    data_countries = d3.map(data_covid, function(d){return d.location;}).keys().sort(function(a, b) {return d3.ascending(a, b);});
+                    console.log(data_countries);
+                    
+                    // Create the Sorted Continent List 
+                    data_continents = d3.map(data_covid, function(d){return d.continent;}).keys().sort(function(a, b) {return d3.ascending(a, b);});
+                    console.log(data_continents);
+                    
+                    
+                    
+              }
+       </script>
+       
+       
+        
+   </HEAD>
+   <BODY onload='data_load()'  bgcolor="#34466b" >
+       <!--//-------------------------------------------- Create a Table structure to create a Header, Footer, Left, Right and Center areas. -----------------------------------------------
+              While people frown on TABLE for modern page layout, this is a simple layout and it works  //-->
+        <TABLE id="tblMainStruct" width="100%" height="100%" bgcolor="#6e7887" cellspacing="0" cellpadding="0">
+            <TR height="10%" id="header" cellspacing="0"> 
+                <!--// -------------------------------------------------------Create the header area //------------------------------------------------------------------------------------>
+                <TD colspan="3" width="100%" bgcolor="#34466b">
+                      <!-- // Print a warning in the event the browser does not support Javascript or it is disabled // -->
+                      <DIV style="header" id="div_header">
+                      <noscript><H1>WARNING:  This page requires Javascript to work properly.  Please enable Javascript for this page in your Browser!</H1></noscript>
+                            <CENTER><H1>COVID-19 - A World at Risk</H1><I>Summer 2020 CS498 Data Visualization (ccbeyer2)</I> </CENTER>
+                      </DIV>
+                </TD>
+            </TR>
+            <!-- // Navigation & Page Header Row // -->                         
+            <TR height="2%">
+                <!--// ----------------------------------------------------- Create the left "nav" area  ----------------------------------------------------------------------------  //-->
+                <TD width="20%" id="doc_leftcolumn_nav" valign="top" class="header">
+                    <a href="#" class="navigation_button" id="btn_nav_previous" onClick="start_scene(-1); return false;">Previous</a>                
+                </TD>
+                <!--// ------------------------------------------------------ Create the center area  -------------------------------------------------------------------------------- //-->
+                <TD width="60%" id="doc_centercolumn" valign="top" class="header">
+                    <a href="#" class="page_title_button" id="btn_page_header" href="#" onClick="return false;">Introduction</a>                                
+                </TD>
+                <!--// ------------------------------------------------------ Create the right area  ----------------------------------------------------------------------------- ----//-->
+                <TD width="20%" id="doc_rightcolumn_nav" valign="top" class="header">
+                    <a href="#" class="navigation_button" id="btn_nav_next" onClick="start_scene(1); return false;">Next</a>                                
+                </TD>
+            </TR>
+            <!-- // Main Body Row // -->             
+            <TR height="1%">
+                <TD width="20%" class="header"></td>
+                <TD width="60%" class="header">
+                       View data for: <select id="sel_country"></select> <HR>
+                </TD>
+                <td width="20%" class="header"></td>
+            </tr>
+            <TR height="68%">
+                <!--// ----------------------------------------------------- Create the left "nav" area  ----------------------------------------------------------------------------  //-->
+                <TD width="20%" id="doc_leftcolumn" valign="top" class="header" valign="middle">
+                  <p id="page_overview_text" class="page_summary"></p>
+                </TD>
+                <!--// ------------------------------------------------------ Create the center area  -------------------------------------------------------------------------------- //-->
+                <TD colspan="2" width="80%" id="doc_centercolumn" class="header" valign="top">
+                    <!--// --------------  Content Specific to the Introduction ----------------- // -->
+                    <!-- The Modal -->
+                    <div id="div_introduction" class="modal">
+
+                      <!-- Modal content -->
+                      <div class="modal-content">
+                        <span id ="modal-span" class="close">&times;</span>
+                        <p id="modal-p" class="illini_orange"></p>
+                      </div>
+                    </div>
+                    
+                    <!--// --------------  Content Specific to the Line Charts  ----------------- // -->                    
+
+                    <div id="div_tooltip" class="tooltip"></div>
+                    <div id="div_line_charts">
+                       <svg></svg>
+                    
+                    </div>
+                   
+                    
+                </TD>
+                <!--// ------------------------------------------------------ Create the right area  ----------------------------------------------------------------------------- ----//-->
+                <!-- <TD width="20%" id="doc_rightcolumn" valign="top" class="header"> -->
+                <!-- </TD> --> 
+            </TR>
+            <TR height="5%" id="doc_footer">
+                <!--// ---------------------------------------------------   Create the footer area  --------------------------------------------------------------------------------- //-->
+                 <TD colspan="3" width="100%" class="header">
+                     <IMG src="notepad.gif" valign="bottom" align="right" alt="This webpage is brought to you by Notepad, editor of champions!">
+                     <!--// This is too cheesy, but left it here in case anyone is looking at the HTML and wonders how old is this guy?  What's Netscape?  :) <IMG src="netnow3.gif" valign="bottom" align="right" alt="This webpage is brought to you by Notepad, editor of champions!">  //-->
+                </TD>
+            </TR>
+      
+       </TABLE>
+   
+   
+    
+   </BODY>
+   
+   <SCRIPT>
+        // -----------------------------------------------------------------------------
+        // If you read this far down in the document source, you found the Easter Egg!
+        // Try to guess how to trigger it by looking at the code below 
+        // -----------------------------------------------------------------------------
+
+        
+        // a key map of allowed keys
+        var allowedKeys = {
+          37: 'left',
+          38: 'up',
+          39: 'right',
+          40: 'down',
+          65: 'a',
+          66: 'b'
+        };
+
+        // the 'official' Konami Code sequence
+        var konamiCode = ['up', 'up', 'down', 'down', 'left', 'right', 'left', 'right', 'b', 'a'];
+
+        // a variable to remember the 'position' the user has reached so far.
+        var konamiCodePosition = 0;
+
+        // add keydown event listener
+        document.addEventListener('keydown', function(e) {
+          // get the value of the key code from the key map
+          var key = allowedKeys[e.keyCode];
+          // get the value of the required key from the konami code
+          var requiredKey = konamiCode[konamiCodePosition];
+
+          // compare the key with the required key
+          if (key == requiredKey) {
+
+            // move to the next key in the konami code sequence
+            konamiCodePosition++;
+
+            // if the last key is reached, activate cheats
+            if (konamiCodePosition == konamiCode.length) {
+              activateCheats();
+              konamiCodePosition = 0;
+            }
+          } else {
+            konamiCodePosition = 0;
+          }
+        });
+
+        function activateCheats() {
+          //document.body.style.backgroundImage = "url('images/cheatBackground.png')";
+
+          var audio = new Audio('Illinois Marching Band Illinois Loyalty Song.mp3');
+          audio.play();
+
+          alert("GO ILLINI!!!");
+        }
+    </SCRIPT>
+   
+</HTML>
